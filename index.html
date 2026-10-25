@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>আলিফ বাংলাদেশ - প্রিমিয়ার ডেটিং ও সামাজিক অ্যাপ</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Hind Siliguri -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        alifRed: '#FF2A5F',
+                        alifCrimson: '#E11D48',
+                        alifPurple: '#8B5CF6',
+                        alifDark: '#0F172A',
+                        alifCard: '#1E293B'
+                    },
+                    fontFamily: {
+                        bangla: ['Hind Siliguri', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31102f 100%);
+            color: #f8fafc;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff2a5f;
+            border-radius: 10px;
+        }
+
+        /* Swipe Card Animations */
+        .card-swipe-like {
+            transform: translateX(120%) rotate(20deg) !important;
+            opacity: 0 !important;
+            transition: all 0.4s ease-out;
+        }
+
+        .card-swipe-pass {
+            transform: translateX(-120%) rotate(-20deg) !important;
+            opacity: 0 !important;
+            transition: all 0.4s ease-out;
+        }
+
+        .card-swipe-super {
+            transform: translateY(-120%) scale(1.1) !important;
+            opacity: 0 !important;
+            transition: all 0.4s ease-out;
+        }
+
+        /* Heart Pulse Animation */
+        @keyframes pulse-heart {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.18); }
+        }
+        .animate-heart-pulse {
+            animation: pulse-heart 1.5s infinite ease-in-out;
+        }
+
+        /* Floating Badge */
+        .badge-gradient {
+            background: linear-gradient(45deg, #ff2a5f, #8b5cf6);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex justify-center items-center font-bangla">
+
+    <!-- App Container (Mobile viewport emulation on desktop, full screen on mobile) -->
+    <div class="w-full max-w-md h-full md:h-[92vh] md:max-h-[850px] md:rounded-3xl glass-card flex flex-col justify-between overflow-hidden shadow-2xl relative border-0 md:border border-white/20">
+
+        <!-- Header Bar -->
+        <header class="flex justify-between items-center px-4 py-3 bg-slate-900/80 border-b border-white/10 z-20 backdrop-blur-md">
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-alifRed to-alifPurple flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-alifRed/30">
+                    আ
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-alifRed via-pink-400 to-alifPurple bg-clip-text text-transparent leading-none">
+                        আলিফ বাংলাদেশ
+                    </h1>
+                    <span class="text-[10px] text-emerald-400 font-medium flex items-center gap-1 mt-0.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> ১০০% বাংলাদেশি সাপোর্ট
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="openFilterModal()" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                </button>
+                <button onclick="switchTab('profile')" class="relative">
+                    <img id="headerAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-9 h-9 rounded-full object-cover border-2 border-alifRed" alt="User">
+                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-slate-900"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dynamic View Area -->
+        <main class="flex-1 relative overflow-hidden bg-slate-950/40">
+
+            <!-- TAB 1: SWIPE MATCH DECK -->
+            <section id="tab-swipe" class="tab-content absolute inset-0 flex flex-col p-3 z-10">
+                <div id="cardDeck" class="relative flex-1 w-full h-full flex justify-center items-center">
+                    <!-- Cards will be dynamically inserted here via JS -->
+                </div>
+
+                <!-- Action Controls -->
+                <div class="flex justify-around items-center pt-3 pb-2 px-6">
+                    <button onclick="handleSwipe('pass')" class="w-14 h-14 rounded-full bg-slate-800/90 hover:bg-red-950/50 text-red-500 border border-red-500/30 flex items-center justify-center text-xl shadow-lg transform active:scale-95 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button onclick="handleSwipe('super')" class="w-12 h-12 rounded-full bg-slate-800/90 hover:bg-amber-950/50 text-amber-400 border border-amber-400/30 flex items-center justify-center text-lg shadow-lg transform active:scale-95 transition">
+                        <i class="fa-solid fa-star"></i>
+                    </button>
+                    <button onclick="handleSwipe('like')" class="w-16 h-16 rounded-full bg-gradient-to-tr from-alifRed to-pink-500 text-white flex items-center justify-center text-2xl shadow-xl shadow-alifRed/40 transform active:scale-95 transition animate-heart-pulse">
+                        <i class="fa-solid fa-heart"></i>
+                    </button>
+                    <button onclick="openRewindAlert()" class="w-12 h-12 rounded-full bg-slate-800/90 hover:bg-blue-950/50 text-blue-400 border border-blue-400/30 flex items-center justify-center text-lg shadow-lg transform active:scale-95 transition">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- TAB 2: CHAT & MESSAGES -->
+            <section id="tab-chat" class="tab-content absolute inset-0 hidden flex-col bg-slate-900/90 z-10">
+                <!-- Chat List View -->
+                <div id="chatListView" class="flex-1 flex flex-col h-full overflow-y-auto">
+                    <!-- New Matches Horizontal Bar -->
+                    <div class="p-3 border-b border-white/10">
+                        <h3 class="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">নতুন ম্যাচসমূহ</h3>
+                        <div id="newMatchesList" class="flex space-x-3 overflow-x-auto pb-2 scrollbar-none">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Conversation History -->
+                    <div class="p-3 flex-1">
+                        <h3 class="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">মেসেজ বার্তা</h3>
+                        <div id="conversationsList" class="space-y-2">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Chat Window View -->
+                <div id="chatRoomView" class="hidden flex-col h-full bg-slate-950">
+                    <!-- Chat Header -->
+                    <div class="px-4 py-3 bg-slate-900 flex items-center justify-between border-b border-white/10">
+                        <div class="flex items-center space-x-3">
+                            <button onclick="closeChatRoom()" class="text-slate-400 hover:text-white mr-1">
+                                <i class="fa-solid fa-chevron-left text-lg"></i>
+                            </button>
+                            <div class="relative">
+                                <img id="activeChatAvatar" src="" class="w-10 h-10 rounded-full object-cover">
+                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-slate-900"></span>
+                            </div>
+                            <div>
+                                <h4 id="activeChatName" class="font-bold text-sm text-white flex items-center gap-1"></h4>
+                                <span id="activeChatStatus" class="text-[11px] text-emerald-400">অনলাইন আছে</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-3 text-slate-300">
+                            <button onclick="startCallSimulation('audio')" class="hover:text-alifRed"><i class="fa-solid fa-phone"></i></button>
+                            <button onclick="startCallSimulation('video')" class="hover:text-alifRed"><i class="fa-solid fa-video"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Messages Scroll Body -->
+                    <div id="messagesContainer" class="flex-1 p-4 overflow-y-auto space-y-3">
+                        <!-- Messages Injected Here -->
+                    </div>
+
+                    <!-- Message Input Bar -->
+                    <div class="p-3 bg-slate-900 border-t border-white/10 flex items-center space-x-2">
+                        <button class="text-slate-400 hover:text-alifRed p-2"><i class="fa-solid fa-paperclip"></i></button>
+                        <input id="chatInput" type="text" placeholder="মেসেজ লিখুন..." class="flex-1 bg-slate-800 text-white px-4 py-2 rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-alifRed" onkeypress="if(event.key==='Enter') sendMessage()">
+                        <button onclick="sendMessage()" class="w-9 h-9 rounded-full bg-gradient-to-r from-alifRed to-pink-500 text-white flex items-center justify-center shadow-md">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: EXPLORE / NEARBY -->
+            <section id="tab-explore" class="tab-content absolute inset-0 hidden flex-col p-3 overflow-y-auto z-10">
+                <!-- Location & Interest Filters -->
+                <div class="mb-4">
+                    <h2 class="text-lg font-bold text-white mb-1">আশেপাশের প্রিয় মুখ</h2>
+                    <p class="text-xs text-slate-400">আপনার কাছাকাছি মানানসই সঙ্গী খুঁজুন</p>
+                    
+                    <div class="flex gap-2 mt-3 overflow-x-auto pb-1 scrollbar-none">
+                        <button onclick="filterExplore('all')" class="explore-tag active px-3 py-1 rounded-full text-xs font-medium bg-alifRed text-white whitespace-nowrap">সবাই</button>
+                        <button onclick="filterExplore('ঢাকা')" class="explore-tag px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap">ঢাকা</button>
+                        <button onclick="filterExplore('চট্টগ্রাম')" class="explore-tag px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap">চট্টগ্রাম</button>
+                        <button onclick="filterExplore('ভ্রমণ')" class="explore-tag px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap">ভ্রমণপ্রিয়</button>
+                        <button onclick="filterExplore('চাআড্ডা')" class="explore-tag px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap">চা-প্রেমী</button>
+                    </div>
+                </div>
+
+                <!-- Explore Grid -->
+                <div id="exploreGrid" class="grid grid-cols-2 gap-3 pb-16">
+                    <!-- Cards Dynamic Insert -->
+                </div>
+            </section>
+
+            <!-- TAB 4: PROFILE & SETTINGS -->
+            <section id="tab-profile" class="tab-content absolute inset-0 hidden flex-col p-4 overflow-y-auto z-10">
+                <div class="flex flex-col items-center text-center mt-2 mb-6">
+                    <div class="relative mb-3">
+                        <img id="userProfileImage" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" class="w-24 h-24 rounded-full object-cover border-4 border-alifRed shadow-xl">
+                        <button onclick="triggerPhotoUpload()" class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-alifPurple text-white flex items-center justify-center text-xs shadow-lg">
+                            <i class="fa-solid fa-camera"></i>
+                        </button>
+                    </div>
+                    
+                    <h2 id="userProfileName" class="text-xl font-bold text-white flex items-center gap-2">
+                        সামিয়া রহমান <i class="fa-solid fa-circle-check text-blue-400 text-sm" title="ভেরিফাইড প্রোফাইল"></i>
+                    </h2>
+                    <p id="userProfileBio" class="text-xs text-slate-300 mt-1 max-w-xs">ঢাকা | ২৩ বছর | বই ও চা প্রেমি ☕📚</p>
+
+                    <div class="mt-3 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-xs shadow-lg">
+                        <i class="fa-solid fa-crown text-xs"></i> আলিফ প্রিমিয়াম সদস্য
+                    </div>
+                </div>
+
+                <!-- Edit Info Box -->
+                <div class="bg-slate-900/80 rounded-2xl p-4 border border-white/10 space-y-3 mb-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">ব্যক্তিগত তথ্য পরিবর্তন</h3>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">আপনার বায়ো</label>
+                        <input id="editBioInput" type="text" value="বই পড়া, কফি আর ঘুরে বেড়াতে ভালো লাগে।" class="w-full bg-slate-800 text-white text-xs px-3 py-2 rounded-lg border border-slate-700 focus:outline-none focus:border-alifRed">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">পছন্দের স্থান (শহর)</label>
+                        <select id="editLocationInput" class="w-full bg-slate-800 text-white text-xs px-3 py-2 rounded-lg border border-slate-700 focus:outline-none focus:border-alifRed">
+                            <option value="ঢাকা" selected>ঢাকা</option>
+                            <option value="চট্টগ্রাম">চট্টগ্রাম</option>
+                            <option value="সিলেট">সিলেট</option>
+                            <option value="রাজশাহী">রাজশাহী</option>
+                            <option value="খুলনা">খুলনা</option>
+                        </select>
+                    </div>
+                    <button onclick="saveProfileChanges()" class="w-full py-2 rounded-lg bg-alifRed text-white text-xs font-bold shadow-md hover:bg-alifCrimson transition">
+                        তথ্য আপডেট করুন
+                    </button>
+                </div>
+
+                <!-- Safety & Privacy Settings -->
+                <div class="bg-slate-900/80 rounded-2xl p-4 border border-white/10 space-y-3 mb-16">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">নিরাপত্তা ও সেটিংস</h3>
+                    <div class="flex items-center justify-between text-xs text-slate-200">
+                        <span>অবস্থান গোপনীয়তা (Hide Distance)</span>
+                        <input type="checkbox" class="accent-alifRed w-4 h-4" checked>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-slate-200">
+                        <span>শুধুমাত্র ভেরিফাইড প্রোফাইল দেখাবে</span>
+                        <input type="checkbox" class="accent-alifRed w-4 h-4" checked>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-slate-200">
+                        <span>অনলাইন স্ট্যাটাস দেখান</span>
+                        <input type="checkbox" class="accent-alifRed w-4 h-4" checked>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="h-16 bg-slate-900 border-t border-white/10 flex justify-around items-center px-2 z-20 backdrop-blur-md">
+            <button onclick="switchTab('swipe')" id="nav-swipe" class="nav-btn active flex flex-col items-center text-alifRed transition">
+                <i class="fa-solid fa-layer-group text-lg"></i>
+                <span class="text-[10px] font-medium mt-1">ম্যাচ</span>
+            </button>
+            <button onclick="switchTab('explore')" id="nav-explore" class="nav-btn flex flex-col items-center text-slate-400 hover:text-slate-200 transition">
+                <i class="fa-solid fa-[#0F172A] fa-compass text-lg"></i>
+                <span class="text-[10px] font-medium mt-1">আবিষ্কার</span>
+            </button>
+            <button onclick="switchTab('chat')" id="nav-chat" class="nav-btn flex flex-col items-center text-slate-400 hover:text-slate-200 transition relative">
+                <i class="fa-solid fa-comments text-lg"></i>
+                <span id="unreadBadge" class="absolute top-0 right-3 w-2.5 h-2.5 bg-alifRed rounded-full border border-slate-900"></span>
+                <span class="text-[10px] font-medium mt-1">মেসেজ</span>
+            </button>
+            <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn flex flex-col items-center text-slate-400 hover:text-slate-200 transition">
+                <i class="fa-solid fa-user text-lg"></i>
+                <span class="text-[10px] font-medium mt-1">প্রোফাইল</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- MODAL 1: MATCH CELEBRATION POPUP -->
+    <div id="matchModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex-col items-center justify-center p-6 text-center">
+        <div class="relative mb-6 flex items-center justify-center">
+            <img id="matchUserImg" src="" class="w-24 h-24 rounded-full border-4 border-alifRed object-cover shadow-2xl z-10 -mr-4">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-alifRed to-pink-500 flex items-center justify-center text-white text-xl z-20 shadow-lg animate-bounce">
+                ❤️
+            </div>
+            <img id="matchPartnerImg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" class="w-24 h-24 rounded-full border-4 border-alifPurple object-cover shadow-2xl z-10 -ml-4">
+        </div>
+
+        <h2 class="text-3xl font-extrabold text-white mb-2 tracking-wide">ম্যাচ হয়েছে! 🎉</h2>
+        <p id="matchText" class="text-sm text-slate-300 max-w-xs mb-8">আপনি এবং তানিয়া দুজনেই একে অপরকে পছন্দ করেছেন!</p>
+
+        <div class="w-full max-w-xs space-y-3">
+            <button onclick="openChatFromMatch()" class="w-full py-3.5 rounded-full bg-gradient-to-r from-alifRed to-pink-500 text-white font-bold text-sm shadow-xl shadow-alifRed/30 hover:opacity-95 transition">
+                এখনই সরাসরি মেসেজ করুন
+            </button>
+            <button onclick="closeMatchModal()" class="w-full py-3.5 rounded-full bg-slate-800 text-slate-300 font-semibold text-sm border border-slate-700 hover:bg-slate-700 transition">
+                পরে দেখুন
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 2: CALL SIMULATION MODAL -->
+    <div id="callModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-lg z-50 hidden flex-col items-center justify-between py-12 px-6 text-center">
+        <div class="mt-6">
+            <span id="callTypeLabel" class="text-xs text-emerald-400 font-semibold uppercase tracking-widest">কলিং...</span>
+            <h3 id="callPartnerName" class="text-2xl font-bold text-white mt-1">তানিয়া রহমান</h3>
+        </div>
+
+        <div class="relative my-auto">
+            <div class="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-alifRed to-alifPurple animate-pulse">
+                <img id="callPartnerImg" src="" class="w-full h-full rounded-full object-cover">
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-6">
+            <button onclick="endCallSimulation()" class="w-16 h-16 rounded-full bg-red-600 text-white text-2xl flex items-center justify-center shadow-xl hover:bg-red-700 transition">
+                <i class="fa-solid fa-phone-slash"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: FILTER MODAL -->
+    <div id="filterModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="w-full max-w-xs bg-slate-900 border border-white/10 rounded-2xl p-5 text-left">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-white">ফিল্টার সেটিং</h3>
+                <button onclick="closeFilterModal()" class="text-slate-400 text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="text-slate-300 block mb-1">বিভাগ/শহর</label>
+                    <select id="filterCity" class="w-full bg-slate-800 text-white p-2 rounded-lg border border-slate-700">
+                        <option value="all">সকল বিভাগ</option>
+                        <option value="ঢাকা">ঢাকা</option>
+                        <option value="চট্টগ্রাম">চট্টগ্রাম</option>
+                        <option value="সিলেট">সিলেট</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-slate-300 block mb-1">বয়সের সীমা (১৮-৩৫)</label>
+                    <input type="range" min="18" max="40" value="26" class="w-full accent-alifRed">
+                </div>
+                <button onclick="applyFilters()" class="w-full py-2.5 rounded-lg bg-alifRed text-white font-bold mt-2">ফিল্টার প্রয়োগ করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden File Input for Avatar Upload -->
+    <input type="file" id="photoFileInput" class="hidden" accept="image/*" onchange="handlePhotoUpload(event)">
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // --- 1. MOCK DATA & APP STATE ---
+        const profilesData = [
+            {
+                id: 1,
+                name: "তানিয়া রহমান",
+                age: 22,
+                location: "চট্টগ্রাম",
+                distance: "১২ কিমি দূরে",
+                bio: "বইয়ের পাতা ও মিষ্টি বাতাসের ভালোবাসা। সুর আর সাহিত্যের মাঝে শান্তি খুঁজি। 📖🎶",
+                interests: ["বই পড়া", "ভ্রমণ", "সঙ্গীত", "চাআড্ডা"],
+                verified: true,
+                image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600",
+                chatHistory: [
+                    { sender: 'them', text: 'হাই! কেমন আছেন?' },
+                    { sender: 'me', text: 'ভালো আছি, আপনি কেমন আছেন?' },
+                    { sender: 'them', text: 'আলহামদুলিল্লাহ ভালো! আপনার প্রোফাইল বেশ সুন্দর।' }
+                ]
+            },
+            {
+                id: 2,
+                name: "মাইশা ইসলাম",
+                age: 24,
+                location: "ঢাকা",
+                distance: "৫ কিমি দূরে",
+                bio: "ফটোগ্রাফি ও ভ্রমণরসিক। পাহাড়ে ট্র্যাকিং করা আমার সবচেয়ে পছন্দের কাজ। 🏔️📸",
+                interests: ["ফটোগ্রাফি", "ভ্রমণ", "গ্যাজেট"],
+                verified: true,
+                image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600",
+                chatHistory: [
+                    { sender: 'them', text: 'হ্যালো! চট্টগ্রাম ভ্রমণ বিষয়ে কথা বলা যায়?' }
+                ]
+            },
+            {
+                id: 3,
+                name: "নুসরাত জাহান",
+                age: 21,
+                location: "সিলেট",
+                distance: "২৮ কিমি দূরে",
+                bio: "চা-বাগানের শহর থেকে! কফি স্পেশালিস্ট ও উইকেন্ড ট্রাভেলার। ☕✨",
+                interests: ["চাআড্ডা", "সিনেমা", "সঙ্গীত"],
+                verified: false,
+                image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600",
+                chatHistory: []
+            },
+            {
+                id: 4,
+                name: "আনিকা চৌধুরী",
+                age: 23,
+                location: "রাজশাহী",
+                distance: "১৫ কিমি দূরে",
+                bio: "ডিজিটাল আর্ট ও ক্লাসিকাল মিউজিক প্রেমী। ভালো আড্ডা পছন্দ করি। 🎨🎵",
+                interests: ["শিল্পকলা", "সঙ্গীত", "চাআড্ডা"],
+                verified: true,
+                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600",
+                chatHistory: []
+            },
+            {
+                id: 5,
+                name: "রাইসা আহমেদ",
+                age: 25,
+                location: "ঢাকা",
+                distance: "২ কিমি দূরে",
+                bio: "সফটওয়্যার ইঞ্জিনিয়ার। প্রযুক্তি, কোডিং এবং ফ্রেঞ্চ ফ্রাই! 💻🍟",
+                interests: ["গ্যাজেট", "সিনেমা", "বই পড়া"],
+                verified: true,
+                image: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=600",
+                chatHistory: []
+            }
+        ];
+
+        let currentDeckIndex = 0;
+        let activeChatUserId = null;
+        let activeTab = 'swipe';
+        let matchedUsers = [1, 2]; // Pre-matched profile IDs
+
+        // --- 2. INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            renderDeck();
+            renderExploreGrid();
+            renderChatList();
+        });
+
+        // --- 3. TAB NAVIGATION ---
+        function switchTab(tabName) {
+            activeTab = tabName;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('text-alifRed');
+                el.classList.add('text-slate-400');
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('flex');
+            
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            if(activeNav) {
+                activeNav.classList.remove('text-slate-400');
+                activeNav.classList.add('text-alifRed');
+            }
+
+            // Hide badge if clicking chat
+            if(tabName === 'chat') {
+                document.getElementById('unreadBadge').classList.add('hidden');
+            }
+        }
+
+        // --- 4. SWIPE DECK RENDERING & CONTROLS ---
+        function renderDeck() {
+            const deck = document.getElementById('cardDeck');
+            deck.innerHTML = '';
+
+            if (currentDeckIndex >= profilesData.length) {
+                deck.innerHTML = `
+                    <div class="text-center p-6 glass-card rounded-2xl">
+                        <div class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-alifRed text-2xl mx-auto mb-3">
+                            <i class="fa-solid fa-radar"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-1">কাছাকাছি নতুন প্রোফাইল নেই!</h3>
+                        <p class="text-xs text-slate-400 mb-4">আপনার ফিল্টার পরিবর্তন করুন অথবা কিছুক্ষণ পর আবার চেষ্টা করুন।</p>
+                        <button onclick="resetDeck()" class="px-4 py-2 rounded-full bg-alifRed text-white text-xs font-bold">পুনরায় লোড করুন <i class="fa-solid fa-rotate-right ml-1"></i></button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render top card & next card for stacked depth
+            for (let i = Math.min(currentDeckIndex + 1, profilesData.length - 1); i >= currentDeckIndex; i--) {
+                const profile = profilesData[i];
+                const isTop = i === currentDeckIndex;
+
+                const card = document.createElement('div');
+                card.id = `card-${profile.id}`;
+                card.className = `absolute inset-0 rounded-2xl overflow-hidden shadow-2xl glass-card transition-all duration-300 flex flex-col ${isTop ? 'z-10 scale-100' : 'z-0 scale-95 opacity-60 pointer-events-none'}`;
+
+                card.innerHTML = `
+                    <div class="relative flex-1 w-full bg-slate-900">
+                        <img src="${profile.image}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                        
+                        <!-- Top Badges -->
+                        <div class="absolute top-3 left-3 right-3 flex justify-between items-center">
+                            <span class="px-2.5 py-1 rounded-full bg-slate-900/60 backdrop-blur-md text-[11px] font-medium text-slate-200 border border-white/10">
+                                <i class="fa-solid fa-location-dot text-alifRed mr-1"></i>${profile.distance}
+                            </span>
+                            ${profile.verified ? `<span class="px-2 py-1 rounded-full bg-blue-500/80 backdrop-blur-md text-[10px] text-white font-semibold flex items-center gap-1"><i class="fa-solid fa-shield-halved"></i> ভেরিফাইড</span>` : ''}
+                        </div>
+
+                        <!-- Card Info Overlay -->
+                        <div class="absolute bottom-3 left-3 right-3 text-left">
+                            <div class="flex items-baseline space-x-2">
+                                <h2 class="text-2xl font-bold text-white">${profile.name}</h2>
+                                <span class="text-xl font-light text-slate-300">${profile.age}</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-0.5"><i class="fa-solid fa-city mr-1 text-alifPurple"></i>${profile.location}, বাংলাদেশ</p>
+                            <p class="text-xs text-slate-200 mt-2 line-clamp-2">${profile.bio}</p>
+
+                            <!-- Interests Tags -->
+                            <div class="flex flex-wrap gap-1.5 mt-3">
+                                ${profile.interests.map(tag => `<span class="px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-[10px] text-slate-200 border border-white/10">#${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                deck.appendChild(card);
+            }
+        }
+
+        function handleSwipe(action) {
+            if (currentDeckIndex >= profilesData.length) return;
+
+            const profile = profilesData[currentDeckIndex];
+            const cardEl = document.getElementById(`card-${profile.id}`);
+
+            if (!cardEl) return;
+
+            if (action === 'like' || action === 'super') {
+                cardEl.classList.add(action === 'super' ? 'card-swipe-super' : 'card-swipe-like');
+                
+                // Trigger Match popup simulation
+                setTimeout(() => {
+                    triggerMatchPopup(profile);
+                }, 300);
+            } else if (action === 'pass') {
+                cardEl.classList.add('card-swipe-pass');
+            }
+
+            setTimeout(() => {
+                currentDeckIndex++;
+                renderDeck();
+            }, 350);
+        }
+
+        function resetDeck() {
+            currentDeckIndex = 0;
+            renderDeck();
+        }
+
+        function openRewindAlert() {
+            alert('আলিফ রিওয়াইন্ড অপশনটি ব্যবহার করতে প্রিমিয়াম ফিচার আনলক করুন!');
+        }
+
+        // --- 5. MATCH CELEBRATION MODAL & CONFETTI ---
+        function triggerMatchPopup(partnerProfile) {
+            if (!matchedUsers.includes(partnerProfile.id)) {
+                matchedUsers.push(partnerProfile.id);
+            }
+
+            const modal = document.getElementById('matchModal');
+            const userImg = document.getElementById('userProfileImage').src;
+            
+            document.getElementById('matchUserImg').src = userImg;
+            document.getElementById('matchPartnerImg').src = partnerProfile.image;
+            document.getElementById('matchText').innerText = `আপনি এবং ${partnerProfile.name} দুজনেই একে অপরকে পছন্দ করেছেন!`;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Trigger Confetti
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            activeChatUserId = partnerProfile.id;
+            renderChatList();
+        }
+
+        function closeMatchModal() {
+            document.getElementById('matchModal').classList.add('hidden');
+            document.getElementById('matchModal').classList.remove('flex');
+        }
+
+        function openChatFromMatch() {
+            closeMatchModal();
+            switchTab('chat');
+            openChatRoom(activeChatUserId);
+        }
+
+        // --- 6. CHAT & REAL-TIME MESSAGING ---
+        function renderChatList() {
+            const newMatchesList = document.getElementById('newMatchesList');
+            const conversationsList = document.getElementById('conversationsList');
+
+            newMatchesList.innerHTML = '';
+            conversationsList.innerHTML = '';
+
+            profilesData.forEach(profile => {
+                if (matchedUsers.includes(profile.id)) {
+                    // Render Horizontal Match Circle
+                    const matchItem = document.createElement('div');
+                    matchItem.className = "flex flex-col items-center cursor-pointer min-w-[60px]";
+                    matchItem.onclick = () => openChatRoom(profile.id);
+                    matchItem.innerHTML = `
+                        <div class="relative w-13 h-13 rounded-full p-0.5 bg-gradient-to-tr from-alifRed to-alifPurple mb-1">
+                            <img src="${profile.image}" class="w-12 h-12 rounded-full object-cover border border-slate-900">
+                        </div>
+                        <span class="text-[10px] text-slate-300 font-medium truncate w-14 text-center">${profile.name.split(' ')[0]}</span>
+                    `;
+                    newMatchesList.appendChild(matchItem);
+
+                    // Render Conversation Row
+                    const lastMsg = profile.chatHistory.length > 0 ? profile.chatHistory[profile.chatHistory.length - 1].text : 'নতুন ম্যাচ! হাই লিখুন...';
+                    const convRow = document.createElement('div');
+                    convRow.className = "flex items-center justify-between p-2.5 rounded-xl bg-slate-800/40 hover:bg-slate-800 cursor-pointer border border-white/5 transition";
+                    convRow.onclick = () => openChatRoom(profile.id);
+                    convRow.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <div class="relative">
+                                <img src="${profile.image}" class="w-11 h-11 rounded-full object-cover">
+                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-slate-900"></span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white flex items-center gap-1">${profile.name} ${profile.verified ? `<i class="fa-solid fa-circle-check text-blue-400 text-[10px]"></i>` : ''}</h4>
+                                <p class="text-[11px] text-slate-400 truncate w-44 mt-0.5">${lastMsg}</p>
+                            </div>
+                        </div>
+                        <span class="text-[9px] text-slate-500">এখনই</span>
+                    `;
+                    conversationsList.appendChild(convRow);
+                }
+            });
+        }
+
+        function openChatRoom(userId) {
+            activeChatUserId = userId;
+            const profile = profilesData.find(p => p.id === userId);
+            if (!profile) return;
+
+            document.getElementById('activeChatName').innerText = profile.name;
+            document.getElementById('activeChatAvatar').src = profile.image;
+            
+            document.getElementById('chatListView').classList.add('hidden');
+            document.getElementById('chatRoomView').classList.remove('hidden');
+            document.getElementById('chatRoomView').classList.add('flex');
+
+            renderMessages();
+        }
+
+        function closeChatRoom() {
+            document.getElementById('chatRoomView').classList.add('hidden');
+            document.getElementById('chatRoomView').classList.remove('flex');
+            document.getElementById('chatListView').classList.remove('hidden');
+            renderChatList();
+        }
+
+        function renderMessages() {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+
+            const profile = profilesData.find(p => p.id === activeChatUserId);
+            if (!profile) return;
+
+            profile.chatHistory.forEach(msg => {
+                const isMe = msg.sender === 'me';
+                const bubble = document.createElement('div');
+                bubble.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
+                bubble.innerHTML = `
+                    <div class="max-w-[75%] px-3.5 py-2 rounded-2xl text-xs leading-relaxed ${isMe ? 'bg-gradient-to-r from-alifRed to-pink-500 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 rounded-bl-none border border-white/5'} shadow-md">
+                        ${msg.text}
+                    </div>
+                `;
+                container.appendChild(bubble);
+            });
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !activeChatUserId) return;
+
+            const profile = profilesData.find(p => p.id === activeChatUserId);
+            if (!profile) return;
+
+            // User Message
+            profile.chatHistory.push({ sender: 'me', text: text });
+            input.value = '';
+            renderMessages();
+
+            // Auto Reply Simulation
+            setTimeout(() => {
+                const autoReplies = [
+                    "অবশ্যই! আপনার সাথে কথা বলতে খুব ভালো লাগছে।",
+                    "হাহা! বেশ মজার তো విషయంটি। 😁",
+                    "আপনার সাথে কফি খাওয়ার আমন্ত্রণ রইলো!",
+                    "ধন্যবাদ সুন্দর কথাটির জন্য! ❤️"
+                ];
+                const randomReply = autoReplies[Math.floor(Math.random() * autoReplies.length)];
+                profile.chatHistory.push({ sender: 'them', text: randomReply });
+                renderMessages();
+            }, 1200);
+        }
+
+        // --- 7. CALL SIMULATION ---
+        function startCallSimulation(type) {
+            const profile = profilesData.find(p => p.id === activeChatUserId);
+            if (!profile) return;
+
+            document.getElementById('callPartnerName').innerText = profile.name;
+            document.getElementById('callPartnerImg').src = profile.image;
+            document.getElementById('callTypeLabel').innerText = type === 'video' ? 'ভিডিও কলিং...' : 'অডিও কলিং...';
+
+            const modal = document.getElementById('callModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function endCallSimulation() {
+            const modal = document.getElementById('callModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // --- 8. EXPLORE TAB & FILTERS ---
+        function renderExploreGrid(filterKey = 'all') {
+            const grid = document.getElementById('exploreGrid');
+            grid.innerHTML = '';
+
+            const filteredProfiles = profilesData.filter(p => {
+                if (filterKey === 'all') return true;
+                if (p.location.includes(filterKey)) return true;
+                if (p.interests.some(i => i.includes(filterKey))) return true;
+                return false;
+            });
+
+            filteredProfiles.forEach(profile => {
+                const item = document.createElement('div');
+                item.className = "relative rounded-xl overflow-hidden glass-card h-48 cursor-pointer group shadow-lg";
+                item.onclick = () => {
+                    switchTab('swipe');
+                    const idx = profilesData.findIndex(p => p.id === profile.id);
+                    if(idx !== -1) {
+                        currentDeckIndex = idx;
+                        renderDeck();
+                    }
+                };
+
+                item.innerHTML = `
+                    <img src="${profile.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-2 left-2 right-2">
+                        <h4 class="text-xs font-bold text-white flex items-center justify-between">
+                            ${profile.name}, ${profile.age}
+                            ${profile.verified ? `<i class="fa-solid fa-circle-check text-blue-400 text-[10px]"></i>` : ''}
+                        </h4>
+                        <p class="text-[10px] text-slate-300"><i class="fa-solid fa-location-dot text-alifRed text-[9px] mr-1"></i>${profile.location}</p>
+                    </div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        function filterExplore(tag) {
+            document.querySelectorAll('.explore-tag').forEach(btn => {
+                btn.classList.remove('bg-alifRed', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
+            });
+            event.target.classList.remove('bg-slate-800', 'text-slate-300');
+            event.target.classList.add('bg-alifRed', 'text-white');
+
+            renderExploreGrid(tag);
+        }
+
+        function openFilterModal() {
+            document.getElementById('filterModal').classList.remove('hidden');
+            document.getElementById('filterModal').classList.add('flex');
+        }
+
+        function closeFilterModal() {
+            document.getElementById('filterModal').classList.add('hidden');
+            document.getElementById('filterModal').classList.remove('flex');
+        }
+
+        function applyFilters() {
+            const city = document.getElementById('filterCity').value;
+            closeFilterModal();
+            renderExploreGrid(city);
+            switchTab('explore');
+        }
+
+        // --- 9. PROFILE MANAGEMENT & PHOTO UPLOAD ---
+        function triggerPhotoUpload() {
+            document.getElementById('photoFileInput').click();
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgUrl = e.target.result;
+                    document.getElementById('userProfileImage').src = imgUrl;
+                    document.getElementById('headerAvatar').src = imgUrl;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveProfileChanges() {
+            const bio = document.getElementById('editBioInput').value;
+            const location = document.getElementById('editLocationInput').value;
+
+            document.getElementById('userProfileBio').innerText = `${location} | ২৩ বছর | ${bio}`;
+            alert('আপনার প্রোফাইল তথ্য সফলভাবে আপডেট হয়েছে!');
+        }
+    </script>
+</body>
+</html>
